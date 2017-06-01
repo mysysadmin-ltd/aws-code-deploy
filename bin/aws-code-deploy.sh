@@ -1,4 +1,14 @@
-#!/usr/bin/env bash
+#!/bin/bash
+
+AWS_CODE_DEPLOY_REGION=eu-west-1
+AWS_CODE_DEPLOY_APPLICATION_NAME=edo-drupal-test
+AWS_CODE_DEPLOY_DEPLOYMENT_GROUP_NAME=edo-drupal-test
+AWS_CODE_DEPLOY_S3_BUCKET=uk.co.mysysadmin.edo-test2
+AWS_CODE_DEPLOY_S3_FILENAME=codedeploy-edo-drupal-test2
+AWS_CODE_DEPLOY_SERVICE_ROLE_ARN=arn:aws:iam::505363800758:role/CodeDeployServiceRole
+AWS_CODE_DEPLOY_AUTO_SCALING_GROUPS=AS-edo-test
+#AWS_CODE_DEPLOY_ELB=LB-edo-test
+AWS_CODE_DEPLOY_FILE_EXISTS_BEHAVIOUR=OVERWRITE
 
 set +e
 set -o noglob
@@ -89,7 +99,7 @@ jsonValue() {
 installAwsCli() {
   if ! typeExists "pip"; then
     h2 "Installing Python PIP"
-    runCommand "sudo apt-get install -y python-pip"
+    runCommand "sudo easy_install pip"
     success "Installing PIP (`pip --version`) succeeded"
   fi
   
@@ -147,7 +157,10 @@ if [ -z "$AWS_CODE_DEPLOY_S3_BUCKET" ]; then
   exit 1
 fi
 
-
+if [ -z "$AWS_CODE_DEPLOY_S3_FILENAME" ]; then
+  error "Please set the \"\$AWS_CODE_DEPLOY_S3_FILENAME\" variable"
+  exit 1
+fi
 
 # ----- Install AWS Cli -----
 # see documentation http://docs.aws.amazon.com/cli/latest/userguide/installing.html
@@ -281,6 +294,7 @@ DEPLOYMENT_GROUP=${AWS_CODE_DEPLOY_DEPLOYMENT_GROUP_NAME:-$DEPLOYTARGET_NAME}
 AUTO_SCALING_GROUPS="$AWS_CODE_DEPLOY_AUTO_SCALING_GROUPS"
 EC2_TAG_FILTERS="$AWS_CODE_DEPLOY_EC2_TAG_FILTERS"
 SERVICE_ROLE_ARN="$AWS_CODE_DEPLOY_SERVICE_ROLE_ARN"
+ELB="$AWS_CODE_DEPLOY_ELB"
 
 # Check deployment group exists
 h1 "Step 5: Checking Deployment Group"
@@ -303,6 +317,10 @@ if [ $? -ne 0 ]; then
   fi
   if [ -n "$EC2_TAG_FILTERS" ]; then
     DEPLOYMENT_GROUP_CREATE="$DEPLOYMENT_GROUP_CREATE --ec2-tag-filters $EC2_TAG_FILTERS"
+  fi
+  # load-balancer-info doesn't seem to work...
+  if [ -n "$ELB" ]; then
+    DEPLOYMENT_GROUP_CREATE="$DEPLOYMENT_GROUP_CREATE --load-balancer-info elbInfoList=[{name=$ELB}]"
   fi
   
   runCommand "$DEPLOYMENT_GROUP_CREATE" \
@@ -331,7 +349,7 @@ if [ ! -e "$APP_SOURCE/appspec.yml" ]; then
 fi
 if ! typeExists "zip"; then
   note "Installing zip binaries ..."
-  sudo apt-get install -y zip
+  sudo yum install -y zip
   note "Zip binaries installed."
 fi
 runCommand "cd \"$APP_SOURCE\" && zip -rq \"${APP_LOCAL_TEMP_FILE}\" ." \
@@ -443,8 +461,9 @@ runCommand "$REGISTER_APP_CMD" \
 # see documentation http://docs.aws.amazon.com/cli/latest/reference/deploy/create-deployment.html
 # ----------------------
 DEPLOYMENT_DESCRIPTION="$AWS_CODE_DEPLOY_DEPLOYMENT_DESCRIPTION"
+FILE_EXISTS_BEHAVIOUR="$AWS_CODE_DEPLOY_FILE_EXISTS_BEHAVIOUR"
 h1 "Step 10: Creating Deployment"
-DEPLOYMENT_CMD="aws deploy create-deployment --application-name $APPLICATION_NAME --deployment-config-name $DEPLOYMENT_CONFIG_NAME --deployment-group-name $DEPLOYMENT_GROUP --s3-location $S3_LOCATION"
+DEPLOYMENT_CMD="aws deploy create-deployment --application-name $APPLICATION_NAME --deployment-config-name $DEPLOYMENT_CONFIG_NAME --deployment-group-name $DEPLOYMENT_GROUP --file-exists-behavior $FILE_EXISTS_BEHAVIOUR --s3-location $S3_LOCATION"
 
 if [ -n "$DEPLOYMENT_DESCRIPTION" ]; then
   DEPLOYMENT_CMD="$DEPLOYMENT_CMD --description \"$DEPLOYMENT_DESCRIPTION\""

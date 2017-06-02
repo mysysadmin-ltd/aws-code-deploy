@@ -1,0 +1,9 @@
+#!/bin/bash
+centos=`cat /etc/redhat-release |grep CentOS`
+if [[ -n $centos ]]; then
+    systemctl restart php56-php-fpm
+    systemctl restart nginx
+else
+    service php-fpm-5.6 restart
+    service nginx restart
+fi

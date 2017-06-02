@@ -1,0 +1,9 @@
+#!/bin/bash
+centos=`cat /etc/redhat-release |grep CentOS`
+if [[ -n $centos ]]; then
+    systemctl start php56-php-fpm
+    systemctl start nginx
+else
+    service php-fpm-5.6 start
+    service nginx start
+fi

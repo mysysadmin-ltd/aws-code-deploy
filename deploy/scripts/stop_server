@@ -1,0 +1,19 @@
+#!/bin/bash
+centos=`cat /etc/redhat-release |grep CentOS`
+    isExist_php-fpm = `pgrep php-fpm`
+    isExist_nginx = `pgrep nginx`
+if [[ -n $centos ]]; then
+    if [[ -n  $isExist_php-fpm ]]; then
+        service php-fpm-5.6 start
+    fi
+    if [[ -n  $isExist_nginx ]]; then
+        systemctl start nginx
+    fi
+else
+    if [[ -n  $isExist_php-fpm ]]; then
+        service php-fpm-5.6 stop
+    fi
+    if [[ -n  $isExist_nginx ]]; then
+        service nginx stop
+    fi
+fi

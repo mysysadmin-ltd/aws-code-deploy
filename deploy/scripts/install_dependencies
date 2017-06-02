@@ -1,0 +1,20 @@
+#!/bin/bash
+centos=`cat /etc/redhat-release |grep CentOS`
+if [[ -n $centos ]]; then
+    yum install -y yum-utils
+    wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    wget http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+    rpm -Uvh remi-release*.rpm epel-release*.rpm
+    yum-config-manager --enable remi-php56
+    yum install -y nginx php56-php-fpm php56-php-mysqlnd php56-php-cli php56-php-gd php56-php-pecl-jsonc php56-php-xml php56-php-process php56-php-pdo php56-php-mbstring php56-php-common php56-php-opcache
+    systemctl enable nginx
+    systemctl enable php56-php-fpm
+else
+    yum install -y nginx php56-fpm php56-mysqlnd php56-cli php56-gd php56-jsonc php56-xml php56-process php56-pdo php56-mbstring php56-common php56-opcache
+    chkconfig nginx on
+    chkconfig php-fpm-5.6 on
+fi
+
+mkdir -p /var/www/html-tmp
+rm -rf /var/www/html-tmp/*
+mkdir -p /var/run/php-fpm/

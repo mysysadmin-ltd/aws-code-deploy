@@ -1,0 +1,34 @@
+version: 0.0
+os: linux
+files:
+  - source: html
+    destination: /var/www/html-tmp/
+  - source: nginx.conf
+    destination: /etc/nginx/
+  - source: virtual.conf
+    destination: /etc/nginx/conf.d/
+  - source: php-5.6.ini
+    destination: /etc/
+  - source: www.conf
+    destination: /etc/php-fpm-5.6.d/
+  - source: remi.repo
+    destination: /etc/yum.repos.d/
+
+hooks:
+  BeforeInstall:
+    - location: scripts/install_dependencies
+      timeout: 300
+      runas: root
+  AfterInstall:
+    - location: scripts/configure
+      timeout: 300
+      runas: root
+    - location: scripts/stop_server
+      timeout: 300
+      runas: root
+    - location: scripts/symlink
+      timeout: 300
+      runas: root
+    - location: scripts/start_server
+      timeout: 300
+      runas: root

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ -e /root/*.sql.gz ]; then
+    rds_endpoint=edo-test.crkdmg6bttsm.eu-west-1.rds.amazonaws.com
+    db=edo_live
+    sql_gzip_file=$(ls -lctr /root/*.sql.gz|tail -1|awk '{ print $9 }')
+    gunzip $sql_gzip_file
+    sql_file=$(ls -lctr /root/*.sql|tail -1|awk '{ print $9 }')
+    mysql -h $rds_endpoint $db < $sql_file
+    rm -f $sql_gzip_file $sql_file
+fi

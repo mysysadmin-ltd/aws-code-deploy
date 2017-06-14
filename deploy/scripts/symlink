@@ -1,7 +1,0 @@
-#!/bin/bash
-date=`date +%F"-"%H"-"%M`
-
-mkdir -p /var/www/releases/release-$date
-cp -a /var/www/html-tmp/* /var/www/releases/release-$date && /
-rm -rf /var/www/html && /
-ln -s /var/www/releases/release-$date /var/www/html

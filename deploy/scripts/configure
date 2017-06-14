@@ -1,6 +1,0 @@
-#!/bin/bash
-centos=`cat /etc/redhat-release |grep CentOS`
-if [[ -n $centos ]]; then
-    ln -fs /etc/php-fpm-5.6.d/www.conf /opt/remi/php56/root/etc/php-fpm.d/www.conf
-    ln -fs /etc/php-5.6.ini /opt/remi/php56/root/etc/php.ini
-fi

@@ -1,3 +1,4 @@
+#!/bin/bash
 date=`date +%F"-"%H"-"%M`
 
 mkdir -p /var/www/releases/release-$date

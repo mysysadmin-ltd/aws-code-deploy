@@ -4,10 +4,10 @@ centos=`cat /etc/redhat-release |grep CentOS`
     isExist_nginx = `pgrep nginx`
 if [[ -n $centos ]]; then
     if [[ -n  $isExist_php-fpm ]]; then
-        systemctl start rh-php56-php-fpm
+        systemctl stop rh-php56-php-fpm
     fi
     if [[ -n  $isExist_nginx ]]; then
-        systemctl start nginx
+        systemctl stop nginx
     fi
 else
     if [[ -n  $isExist_php-fpm ]]; then

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+new_rds_instance=
+old_rds_instance=
+
+aws create-db-instance-read-replica --db-instance-identifier $new_rds_instance --source-db-instance-identifier $old_rds_instance

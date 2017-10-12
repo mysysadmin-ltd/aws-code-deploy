@@ -1,20 +1,37 @@
 version: 0.0
 os: linux
 files:
-  - source: files
-    destination: /root
+  - source: html
+    destination: /var/www/html-tmp/
+  - source: nginx.conf
+    destination: /etc/nginx/
+  - source: virtual.conf
+    destination: /etc/nginx/conf.d/
 
 hooks:
+  BeforeInstall:
+    - location: scripts/create_read_replica
+      timeout: 300
+      runas: root
   AfterInstall:
-    - location: scripts/import_db
+    - location: scripts/point_code_to_new_db
       timeout: 300
       runas: root
-    - location: scripts/stop_server
+    - location: scripts/maintenance_mode
       timeout: 300
       runas: root
-    - location: scripts/files
+    - location: scripts/promote_read_replica
       timeout: 300
       runas: root
-    - location: scripts/start_server
+    - location: scripts/composer_install
+      timeout: 300
+      runas: root
+    - location: scripts/symlink
+      timeout: 300
+      runas: root
+    - location: scripts/stop
+      timeout: 300
+      runas: root
+    - location: scripts/start
       timeout: 300
       runas: root

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+new_rds_instance=
+
+aws promote-read-replica --db-instance-identifier $new_rds_instance
